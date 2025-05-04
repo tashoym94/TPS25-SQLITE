@@ -26,13 +26,14 @@ This lesson walks students through how to explore a simplified database using ba
 
 ---
 
-```sql
--- The below tables are automatically generated — none of these fields are calculated.
+## 📜 Database Tables
 
-SELECT * FROM demographics     -- 1 row for every person in the dataset
-SELECT * FROM legalall         -- 1 row for every legal event (a person may have many)
-SELECT * FROM programming      -- 1 row per person referred to programming
-SELECT * FROM programmingLU    -- 1 row per program
+```sql
+
+SELECT * FROM demographics;     -- 1 row for every person in the dataset
+SELECT * FROM legalall;         -- 1 row for every legal event (a person may have many)
+SELECT * FROM programming;      -- 1 row per person referred to programming
+SELECT * FROM programmingLU;    -- 1 row per program
 ```
 
 ---
@@ -41,7 +42,7 @@ SELECT * FROM programmingLU    -- 1 row per program
 
 ```sql
 -- Format for viewing any table:
-SELECT * FROM <table name>
+SELECT * FROM <table name>;
 -- * = all columns
 ```
 
@@ -50,34 +51,34 @@ SELECT * FROM <table name>
 ## 🔎 Exploring the `demographics` Table
 
 ```sql
-SELECT * FROM demographics
+SELECT * FROM demographics;
 ```
 
 ### SELECT vs SELECT DISTINCT
 
 ```sql
-SELECT zipcode FROM demographics            -- lists every zipcode (including duplicates)
-SELECT DISTINCT zipcode FROM demographics   -- lists every unique zipcode
+SELECT zipcode FROM demographics;            -- lists every zipcode (including duplicates)
+SELECT DISTINCT zipcode FROM demographics;   -- lists every unique zipcode
 ```
 
 ```sql
 --
-SELECT DISTINCT language FROM demographics
+SELECT DISTINCT language FROM demographics;
 ```
 
 ```sql
 --
-SELECT name FROM demographics
+SELECT name FROM demographics;
 ```
 
 ```sql
 -- What if we select more than one thing?
-SELECT DISTINCT language, zipcode FROM demographics
+SELECT DISTINCT language, zipcode FROM demographics;
 ```
 
 ```sql
 --
-SELECT DISTINCT race, gender FROM demographics
+SELECT DISTINCT race, gender FROM demographics;
 ```
 
 ---
@@ -86,37 +87,37 @@ SELECT DISTINCT race, gender FROM demographics
 
 ```sql
 SELECT DISTINCT language, zipcode FROM demographics
-ORDER BY zipcode
+ORDER BY zipcode;
 -- Notice how ORDER BY improves readability
 ```
 
 ```sql
-SELECT * FROM demographics                  -- 1 row per person
-SELECT * FROM legalall                      -- 1 row per case
+SELECT * FROM demographics;                  -- 1 row per person
+SELECT * FROM legalall;                      -- 1 row per case
 ```
 
 ```sql
 --
-SELECT * FROM legalall ORDER BY topcharge
+SELECT * FROM legalall ORDER BY topcharge;
 ```
 
 ```sql
-SELECT * FROM legalall ORDER BY topcharge, courtdate
-```
-
-```sql
---
-SELECT * FROM demographics ORDER BY age
-```
-
-```sql
-SELECT * FROM demographics ORDER BY age DESC
-SELECT * FROM demographics ORDER BY age ASC
+SELECT * FROM legalall ORDER BY topcharge, courtdate;
 ```
 
 ```sql
 --
-SELECT * FROM demographics ORDER BY name ASC
+SELECT * FROM demographics ORDER BY age;
+```
+
+```sql
+SELECT * FROM demographics ORDER BY age DESC;
+SELECT * FROM demographics ORDER BY age ASC;
+```
+
+```sql
+--
+SELECT * FROM demographics ORDER BY name ASC;
 ```
 
 ---
@@ -124,32 +125,32 @@ SELECT * FROM demographics ORDER BY name ASC
 ## 🌟 WHERE, IN, and Wildcard Searches
 
 ```sql
-SELECT * FROM demographics WHERE race = 'Asian'
-SELECT * FROM demographics WHERE age = 40
+SELECT * FROM demographics WHERE race = 'Asian';
+SELECT * FROM demographics WHERE age = 40;
 ```
 
 ```sql
 -- Ranges for numbers and dates
-SELECT * FROM demographics WHERE age < 40 AND age > 20
+SELECT * FROM demographics WHERE age < 40 AND age > 20;
 ```
 
 ```sql
 -- Groups of items
-SELECT * FROM demographics WHERE zipcode IN (62703, 62701)
-SELECT * FROM demographics WHERE zipcode = 62703 OR zipcode = 62701
+SELECT * FROM demographics WHERE zipcode IN (62703, 62701);
+SELECT * FROM demographics WHERE zipcode = 62703 OR zipcode = 62701;
 ```
 
 ```sql
 -- More complex logic
 SELECT * FROM demographics
-WHERE zipcode = 62703 OR (zipcode = 62701 AND age < 30)
+WHERE zipcode = 62703 OR (zipcode = 62701 AND age < 30);
 ```
 
 ```sql
 --
 SELECT * FROM demographics
 WHERE (language = 'Spanish' AND zipcode = 62703)
-   OR (language = 'English' AND zipcode = 62701)
+   OR (language = 'English' AND zipcode = 62701);
 ```
 
 ---
@@ -157,10 +158,10 @@ WHERE (language = 'Spanish' AND zipcode = 62703)
 ## 🧪 LIKE and Pattern Matching
 
 ```sql
-SELECT * FROM demographics WHERE name LIKE 'Ma%'
-SELECT * FROM demographics WHERE name = 'Ma%'         -- This won’t work
-SELECT * FROM demographics WHERE name LIKE '%Ma%'
-SELECT * FROM demographics WHERE name LIKE '%Simpson'
+SELECT * FROM demographics WHERE name LIKE 'Ma%';
+SELECT * FROM demographics WHERE name = 'Ma%';         -- This won’t work
+SELECT * FROM demographics WHERE name LIKE '%Ma%';
+SELECT * FROM demographics WHERE name LIKE '%Simpson';
 ```
 
 ---
