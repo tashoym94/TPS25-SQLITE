@@ -1,0 +1,5 @@
+programluid,name,chargeseligible,provider,providercontact,contractstart,active
+1,IntensiveRelief,drug,HopeTreatments,3345567788,2025-01-01,1
+2,SpeedyRecovery,drug,HopeTreatments,7789908989,2025-01-01,1
+3,TheftCounseling,theft,CounselingStar,3123457654,2025-01-01,1
+4,ReEnter,assault,Columbia University,2128897890,2025-11-12,0

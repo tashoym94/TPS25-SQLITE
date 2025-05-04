@@ -1,0 +1,51 @@
+personid,name,race,gender,zipcode,language,age
+48390214,Homer Simpson,White,Male,62701,English,45
+37251860,Marge Simpson,White,Female,62702,English,43
+91573629,Bart Simpson,Other/Hispanic,Male,62703,English,16
+28469157,Lisa Simpson,Black,Female,62704,English,14
+50394218,Maggie Simpson,Black,Female,62701,English,2
+87034159,Ned Flanders,South Asian,Male,62702,English,60
+60417382,Apu Nahasapeemapetilon,South Asian,Male,62703,Hindi,39
+79452036,Krusty the Clown,Other/Hispanic,Male,62704,English,53
+15832746,Mr. Burns,White,Male,62701,English,70
+49375218,Waylon Smithers,White,Male,62702,English,50
+84791263,Moe Szyslak,White,Male,62703,English,48
+27643958,Barney Gumble,Other/Hispanic,Male,62704,English,42
+36581492,Chief Wiggum,Black,Male,62701,English,44
+62704813,Ralph Wiggum,Unknown,Male,62702,English,10
+48365921,Seymour Skinner,White,Male,62703,English,40
+51673408,Edna Krabappel,Other/Hispanic,Female,62704,English,52
+83271094,Principal Skinner,White,Male,62701,English,49
+19476305,Milhouse Van Houten,White,Male,62702,English,14
+93057862,Nelson Muntz,Black,Male,62703,English,16
+52860371,Martin Prince,Asian,Male,62704,English,15
+65321047,SpongeBob SquarePants,White,Male,62701,English,28
+74583120,Patrick Star,Other/Hispanic,Male,62702,English,30
+87624593,Squidward Tentacles,Black,Male,62703,French,47
+26478109,Mr. Krabs,White,Male,62704,English,63
+49761352,Sandy Cheeks,Black,Female,62701,English,38
+92037468,Plankton,Asian,Male,62702,English,44
+65091274,Gary the Snail,White,Male,62703,Spanish,5
+47102836,Pearl Krabs,Other/Hispanic,Female,62704,English,19
+93627415,Tommie,Black,Unknown,62701,English,27
+61982754,Lenny Leonard,White,Male,62702,English,50
+25869317,Carl Carson,Other/Hispanic,Male,62703,English,39
+78246530,Gil Gunderson,Black,Male,62704,German,58
+34091826,Francesca,Other/Hispanic,Female,62701,Spanish,32
+12836549,Kenny McCormick,Unknown,Male,62702,Unknown,16
+49382610,Stan Marsh,White,Male,62703,English,19
+65017392,Kyle Broflovski,White,Male,62704,English,18
+27498350,Eric Cartman,White,Male,62701,English,17
+83269451,Randy Marsh,White,Male,62702,English,45
+67105829,Sharon Marsh,Black,Female,62703,Unknown,42
+19374685,Butters Stotch,Asian,Male,62704,English,15
+37094218,Wendy Testaburger,White,Female,62701,English,16
+29173864,Timmy Burch,Other/Hispanic,Unknown,62702,Unknown,14
+41685920,Jimmy Valmer,White,Male,62703,English,22
+79852301,Bebe Stevens,Black,Female,62704,English,25
+17560492,Ike Broflovski,White,Male,62701,English,4
+34719268,Mitch Conner,Asian,Male,62702,English,38
+64072985,Jimmy Hopkins,Other/Hispanic,Male,62703,English,30
+90358261,Gary Smith,White,Unknown,62704,Unknown,21
+85169074,Russell Northrop,Other/Hispanic,Male,62701,English,28
+92480617,Bucky Lucas,Black,Male,62702,English,41
