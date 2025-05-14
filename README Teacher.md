@@ -25,6 +25,14 @@ This lesson walks students through how to explore a simplified database using ba
 | `programmingLU`  | One row per program, with details                |
 
 ---
+## What to Type in your terminal
+
+1. sqlite3 (enter)
+2. .open JTCsql.db (enter)
+3. .tables (enter) 
+         when you type this command, you should see the 4 tables appear 
+
+Helpful tip: If you get stuck in a shell: CONTROL + C
 
 ## 📜 Database Tables
 
@@ -55,6 +63,8 @@ SELECT * FROM demographics;
 ```
 
 ### SELECT vs SELECT DISTINCT
+
+**In what situations may we want to see everything in a colum vs. every unique thing in a column?**
 
 ```sql
 SELECT zipcode FROM demographics;            -- lists every zipcode (including duplicates)
