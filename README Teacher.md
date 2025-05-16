@@ -31,13 +31,17 @@ This lesson walks students through how to explore a simplified database using ba
 2. .open JTCsql.db (enter)
 3. .tables (enter) 
          when you type this command, you should see the 4 tables appear 
+4. .headers on (enter) 
+5. .mode column (enter)
+6. .mode box (enter)
+
+.mode list is default, but returns an unformatted output 
 
 Helpful tip: If you get stuck in a shell: CONTROL + C
 
 ## 📜 Database Tables
 
 ```sql
-
 SELECT * FROM demographics;     -- 1 row for every person in the dataset
 SELECT * FROM legalall;         -- 1 row for every legal event (a person may have many)
 SELECT * FROM programming;      -- 1 row per person referred to programming
@@ -67,27 +71,38 @@ SELECT * FROM demographics;
 **In what situations may we want to see everything in a colum vs. every unique thing in a column?**
 
 ```sql
-SELECT zipcode FROM demographics;            -- lists every zipcode (including duplicates)
+SELECT zipcode FROM demographics;            -- lists every zipcode 
 SELECT DISTINCT zipcode FROM demographics;   -- lists every unique zipcode
 ```
+STUDENTS: if someone is asking what zipcodes are people in this database from, would we want to use `SELECT` or `SELECT DISTINCT` to get that information?
 
+✅
+`SELECT DISTINCT`
+
+STUDENTS: let's say your boss asks you "what languages do the people that come to our office speak?". How would you query that information from the demographics table?
+
+✅
 ```sql
---
 SELECT DISTINCT language FROM demographics;
 ```
+STUDENTS: a researcher wants a list of everyone in our demographics table, would we use `SELECT` or `SELECT DISTINCT`?
 
+✅
 ```sql
---
 SELECT name FROM demographics;
 ```
+In some situations, we want potential repeats. For example, imagine if 2 people have the same name. These individuals should both still be accounted for. 
 
+
+**How can we select more than one thing from a table?**
 ```sql
--- What if we select more than one thing?
 SELECT DISTINCT language, zipcode FROM demographics;
 ```
 
+STUDENTS: try selecting the unique combination of race and gender from the demographics table
+
+✅
 ```sql
---
 SELECT DISTINCT race, gender FROM demographics;
 ```
 
@@ -95,11 +110,29 @@ SELECT DISTINCT race, gender FROM demographics;
 
 ## 🔽 Sorting with ORDER BY
 
+**Ordering data can help us interpret it more clearly**
+
+SYNTAX:
+```sql
+select <item> from <source> and ORDER BY <column(s)>
+```
+Question: What are the combinations of zipcode and language in this table?
+
+QUERY 1: 
+```sql
+SELECT DISTINCT language, zipcode FROM demographics;
+```
+
+Let's say we want to be able to read this output as all of the languages spoken in each zipcode. 
+
+QUERY 2: 
 ```sql
 SELECT DISTINCT language, zipcode FROM demographics
 ORDER BY zipcode;
 -- Notice how ORDER BY improves readability
 ```
+
+Let's explore more of our database 
 
 ```sql
 SELECT * FROM demographics;                  -- 1 row per person
@@ -240,6 +273,11 @@ FROM legalall
 GROUP BY personid;
 ```
 
+--returning to the examole in order by.
+SELECT zipcode, GROUP_CONCAT(DISTINCT language) AS languages
+FROM demographics
+GROUP BY zipcode;
+
 ---
 
 ## 🔗 JOINs
@@ -288,6 +326,20 @@ LEFT JOIN programming p ON d.personid = p.personid;
 
 ---
 
-## ✅ Summary
+## Summary
 
-You've just walked through a realistic dataset structure using SQL: exploring tables, filtering, joining, and aggregating. Next steps could include saving your queries, exploring outer joins, or writing reusable views.
+You've just walked through a realistic dataset structure using SQL: exploring tables, filtering, joining, and aggregating. The next step is learning how to create your own tables.
+
+# SQL Lesson 2: Creating your own tables/CRUD OPERATIONS 
+
+Begin by making a LOCAL copy of a new database with your name: by typing: `sqlite3 dylan.db` into the terminal 
+
+** Important note: you will not be pushing any changes to the 
+
+`rm student1.db` allows you to remove a local database (command this outside of the sqlite3 shell) 
+
+git add "README Teacher.md"
+git commit -m "Update README Teacher"
+git push origin main
+
+
