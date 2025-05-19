@@ -2,7 +2,7 @@
 
 1. Exploring an existing database 
 2. Learning how to create a database 
-3. Analytical project using the database
+3. Analytical project using the `JTCsql.db` database, where you'll use what you've learned to create an analysis of new diversion pilot programs. 
 
 # SQL Lesson: Exploring a Dataset
 
@@ -37,13 +37,13 @@ Hit enter after each one. 1-6 are for more readable outputs as we go.
 2. `.open JTCsql.db` 
 3. `.tables` (enter) `
          when you type this command, you should see the 4 tables appear 
-4. `.headers on` 
+4. `.headers on`  
 5. `.mode column` 
 6. `.mode box` 
 
-.mode list is default, but returns an unformatted output 
+Helpful tip: If you get stuck in a shell: hit `CONTROL + C` 2 times and then reset with sqlite3 JTCsql.db 
 
-Helpful tip: If you get stuck in a shell: CONTROL + C
+sqlite3 is the program we are using and JTCsql.db is the database we are querying
 
 ## Database Tables
 
@@ -53,8 +53,6 @@ SELECT * FROM legalall;         -- 1 row for every legal event (a person may hav
 SELECT * FROM programming;      -- 1 row per person referred to programming
 SELECT * FROM programmingLU;    -- 1 row per program
 ```
-
----
 
 ## Viewing Tables
 
@@ -203,43 +201,78 @@ Assume you are a researcher who has come across this table and who is interested
 SELECT * FROM demographics ORDER BY age;
 ```
 
+SQL defualts order by least to greatest, but we can also use DESC and ASC to specify if we want to see things in ascending or descending order. 
 
 ```sql
 SELECT * FROM demographics ORDER BY age DESC;
-SELECT * FROM demographics ORDER BY age ASC;
+SELECT * FROM demographics ORDER BY age ASC; -- default 
 ```
 
+STUDENTS: how can we sort this table by the person's name alphabetically? 
+
+✅
 ```sql
---
 SELECT * FROM demographics ORDER BY name ASC;
 ```
 
 ---
 
-## 🌟 WHERE, IN, and Wildcard Searches
+## WHERE, IN, and Wildcard Searches + a game! 
+Sometimes, we do not need to see all of the data in a table. We can refine it using `WHERE`. 
 
+Examples: 
+
+I am looking into the people in our database that are Asian. While I could use `ORDER BY` race and find these people, `WHERE` allows me to only view the people I am interested in. 
 ```sql
 SELECT * FROM demographics WHERE race = 'Asian';
+```
+
+STUDENTS: let's say I am interested in viewing this same list of Asian people, but I want it to be in the order of oldest to youngest
+
+HINT: ORDER BY comes after WHERE 
+
+✅
+```sql
+SELECT * FROM demographics WHERE race = 'Asian' ORDER BY age desc;
+```
+
+Another example: I want to view anyone in the dataset who is 40 years old. 
+```sql
 SELECT * FROM demographics WHERE age = 40;
 ```
 
-```sql
--- Ranges for numbers and dates
-SELECT * FROM demographics WHERE age < 40 AND age > 20;
-```
+WHERE statements can also be used to identify a range for numbers and dates: 
 
 ```sql
--- Groups of items
+SELECT * FROM demographics WHERE age < 40 AND age > 20; --between 20 and 40
+SELECT * FROM legalall WHERE courtdate <= '2024-03-13'; -- on or before this date
+```
+
+We can also refine to groups of items using IN or multiple = statements
+```sql
 SELECT * FROM demographics WHERE zipcode IN (62703, 62701);
 SELECT * FROM demographics WHERE zipcode = 62703 OR zipcode = 62701;
 ```
+Notice how these 2 statements do the same thing. 
+
+`WHERE` statements can also contain more complex logic:
+
+Situation: A program has been created to provide resources to any individual that lives in the 62703 area OR any individual who lives in the 62701 area that is under 30 years old. They would like the names of those individuals: 
 
 ```sql
--- More complex logic
-SELECT * FROM demographics
+SELECT name, zipcode, age FROM demographics
 WHERE zipcode = 62703 OR (zipcode = 62701 AND age < 30);
 ```
 
+STUDENTS: Another program has been created and the following people are eligible: 
+- Everyone in 62703 if they speak Spanish 
+- Everyone in 62701 if they speak English 
+
+Please provide the names, zipcodes, and languages of these individuals: 
+
+Hint: Use () like this: (criteria one) OR (criteria two)
+
+✅
 ```sql
 --
 SELECT * FROM demographics
@@ -247,9 +280,9 @@ WHERE (language = 'Spanish' AND zipcode = 62703)
    OR (language = 'English' AND zipcode = 62701);
 ```
 
----
+## WILDCARD SEARCHING 
 
-## 🧪 LIKE and Pattern Matching
+Wildcard searches using `LIKE` allow you to refine based on a partial match:
 
 ```sql
 SELECT * FROM demographics WHERE name LIKE 'Ma%';
@@ -258,30 +291,168 @@ SELECT * FROM demographics WHERE name LIKE '%Ma%';
 SELECT * FROM demographics WHERE name LIKE '%Simpson';
 ```
 
----
+## 🎮 Student Practice Game 
 
-## 🎮 Student Practice Challenges
+STUDENTS: Please complete the question and send me the name of the person in a private chat 
 
+1. Please create a list of all males over the age of 18 in the demographics table in reverse alphabetical order (Z --> A). What is the 4th name in the list? 
+
+✅
 ```sql
--- 1: Find the name of the person who has an 's' in their name,
--- speaks English, is over 60, and lives in 62704
-SELECT * FROM demographics
-WHERE name LIKE '%s%' AND language = 'English' AND age > 60 AND zipcode = 62704;
-```
-
-```sql
--- 2: How many people speak Hindi?
-SELECT * FROM demographics WHERE language = 'Hindi';
-```
-
-```sql
--- 3: View all males over 18, sorted Z → A by name
 SELECT * FROM demographics
 WHERE gender = 'Male' AND age > 18
 ORDER BY name DESC;
 ```
 
----
+2. Find the name of the person who has an 's' in their name, speaks English, is over 60, and lives in the 62704 zip code...
+
+✅
+```sql
+SELECT * FROM demographics
+WHERE name LIKE '%s%' AND language = 'English' AND age > 60 AND zipcode = 62704;
+```
+
+3. Please find the NAME of the person who had a Fraud legal event on Feb. 19, 2023. 
+
+Hint: you will need to query the legalall table and then the demographcis table...
+
+✅
+```sql
+SELECT * FROM legalall where courtdate = '2023-02-19' and topcharge = 'Fraud'; -- find the personid
+
+SELECT * FROM demographics where personid = '37094218'; --find the name
+```
+
+
+## 🔗 JOINs
+
+Notice how in that last problem, we are referencing 2 tables. We can do that more efficiently using a `JOIN`. 
+
+```sql 
+SELECT * FROM legalall l
+JOIN demographics d ON l.personid = d.personid 
+WHERE courtdate = '2023-02-19' and topcharge = 'Fraud';
+```
+This statement combines the information from these 2 tables when we link them based on their column in common. 
+
+Let's break down this proces with a more simple example: 
+
+Our programming table contains a record for every referral to a program. 
+```sql
+SELECT * FROM programming;
+```
+
+Our programming look-up table contains a record for each possible program one can be referred to.
+```sql
+SELECT * FROM programmingLU;
+```
+
+The table I want to create has the following columns, which include information from both of these tables: 
+
+personid, program name, chargeseligible, referral date
+
+JOIN FORMULA 
+```sql 
+SELECT * (or columns)
+FROM A 
+JOIN B ON A.id = B.id;
+```
+
+STUDENTS: what column do both of these tables have in common? 
+
+✅ programluid 
+
+```sql 
+SELECT personid, name, chargeseligible, referraldate 
+FROM programming p
+JOIN programmingLU lu on p.programluid = lu.programluid;
+
+--notice how with a normal JOIN, it doesn't matter which table is the base table 
+
+SELECT personid, name, chargeseligible, referraldate 
+FROM programmingLU p
+JOIN programming lu on p.programluid = lu.programluid;
+```
+
+Now, instead of the personid, we want the person's name. 
+
+STUDENTS: What table table will we need to join to that has this new information?
+
+✅ demographics 
+
+STUDENTS: What is a column that this table shares with either the programmingLU table or the programming table?
+
+✅ personid
+
+
+STUDENTS: add another join to this statement
+
+```sql 
+SELECT personid, name, chargeseligible, referraldate 
+FROM programming p
+JOIN programmingLU lu on p.programluid = lu.programluid;
+```
+
+```sql 
+SELECT personid, name, chargeseligible, referraldate 
+FROM programming p
+JOIN programmingLU lu on p.programluid = lu.programluid
+JOIN demographics d on d.personid = p.personid;
+```
+
+Now we want to replace personid with the name from the demographics table. You'll notice that there is a name column in both the demographics table and the programming table. When that happens, we need to specify which tables we are geeting those columns from using the table alias:
+
+```sql 
+SELECT d.name, lu.name, chargeseligible, referraldate 
+FROM programming p
+JOIN programmingLU lu on p.programluid = lu.programluid
+JOIN demographics d on d.personid = p.personid;
+```
+To further clarify this output, we can also rename the coulmns using `AS` 
+
+```sql 
+SELECT d.name as [person name], lu.name as [program name], chargeseligible, referraldate 
+FROM programming p
+JOIN programmingLU lu on p.programluid = lu.programluid
+JOIN demographics d on d.personid = p.personid;
+```
+
+STUDENTS: please create a table that looks like this 
+
+person name, 
+
+
+
+```sql
+SELECT * FROM legalall;
+--
+SELECT * FROM demographics;
+```
+
+```sql
+--
+SELECT * FROM legalall l
+JOIN demographics d ON l.personid = d.personid;
+```
+
+```sql
+-- We want all of legalall and just name/age from demographics
+SELECT l.*, d.name, d.age
+FROM legalall l
+JOIN demographics d ON l.personid = d.personid;
+```
+
+```sql
+--
+SELECT * FROM demographics d
+JOIN programming p ON d.personid = p.personid;
+```
+
+```sql
+-- LEFT JOIN to keep all people, even those not in programming
+SELECT * FROM demographics d
+LEFT JOIN programming p ON d.personid = p.personid;
+```
 
 ## 💲 COUNT, CONCAT, and Aliases
 
@@ -328,52 +499,6 @@ GROUP BY personid;
 SELECT zipcode, GROUP_CONCAT(DISTINCT language) AS languages
 FROM demographics
 GROUP BY zipcode;
-
----
-
-## 🔗 JOINs
-
-```sql
-SELECT * FROM programming;
-SELECT * FROM programmingLU;
-```
-
-```sql
---
-SELECT * FROM programming p
-JOIN programmingLU l ON p.programluid = l.programluid;
-```
-
-```sql
-SELECT * FROM legalall;
---
-SELECT * FROM demographics;
-```
-
-```sql
---
-SELECT * FROM legalall l
-JOIN demographics d ON l.personid = d.personid;
-```
-
-```sql
--- We want all of legalall and just name/age from demographics
-SELECT l.*, d.name, d.age
-FROM legalall l
-JOIN demographics d ON l.personid = d.personid;
-```
-
-```sql
---
-SELECT * FROM demographics d
-JOIN programming p ON d.personid = p.personid;
-```
-
-```sql
--- LEFT JOIN to keep all people, even those not in programming
-SELECT * FROM demographics d
-LEFT JOIN programming p ON d.personid = p.personid;
-```
 
 ---
 
