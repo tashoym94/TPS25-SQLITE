@@ -1,21 +1,110 @@
-# TPS25-SQLITE
+# TPS25-SQL
 
-1. Exploring an existing database 
-2. Learning how to create a database 
-3. Analytical project using the `JTCsql.db` database, where you'll use what you've learned to create an analysis of new diversion pilot programs. 
+Instructor: Dylan Comerford (dylancomerford1@gmail.com)
+
+# Background: What is a relational database and what is the point of using one? 
+
+Scenario: You're working for a company that tracks global weather data. Every day, the system you created collects readings from thousands of weather stations around the world — temperature, humidity, wind speed, and more. The data collected needs to be stored somewhere. 
+
+Option (bad): Storing it all in one massive spreadsheet:
+
+| Station Name | City   | Country | Latitude | Longitude | Date       | Temp | Wind  | Humidity |
+|--------------|--------|---------|----------|-----------|------------|------|-------|----------|
+| Station A    | NYC    | USA     | 40.71    | -74.01    | 2025-05-19 | 68°F | 12mph | 70%      |
+| Station A    | NYC    | USA     | 40.71    | -74.01    | 2025-05-20 | 70°F | 8mph  | 65%      |
+| Station B    | Tokyo  | Japan   | 35.68    | 139.69    | 2025-05-19 | 75°F | 10mph | 60%      |
+
+
+Problems:
+- Station info is repeated for every row, 
+- Easy to introduce inconsistent data (e.g., "NYC" vs "New York"), 
+- One change (e.g., GPS correction) must be made in every row 
+
+Soultion: Use a relational database 
+- Instead of repeating information, we split it into related tables:
+
+table `stations`
+| station_id | name      | city   | country | latitude | longitude |
+|------------|-----------|--------|---------|----------|-----------|
+| 1          | Station A | NYC    | USA     | 40.71    | -74.01    |
+| 2          | Station B | Tokyo  | Japan   | 35.68    | 139.69    |
+
+table `weather readings`
+| reading_id | station_id | date       | temperature | wind_speed | humidity |
+|------------|------------|------------|-------------|------------|----------|
+| 1          | 1          | 2025-05-19 | 68°F        | 12mph      | 70%      |
+| 2          | 1          | 2025-05-20 | 70°F        | 8mph       | 65%      |
+| 3          | 2          | 2025-05-19 | 75°F        | 10mph      | 60%      |
+
+Now: 
+- Station info is stored once
+- We link readings using station_id
+- If a station moves or is renamed, we update one row, not hundreds
+
+We can use a SQL Query to edit and analyze this data easily. 
+
+Soon you'll understand how this query works, but the power of this query is allowing us to know the follwoing city-level insights from potentially thousands of readings with 4 simple lines of code:
+
+| city  | AVG(temperature) |
+|-------|------------------|
+| NYC   | 69.0             |
+| Tokyo | 75.0             |
+
+
+```sql
+SELECT city, AVG(temperature)
+FROM weather_readings wr
+JOIN stations s ON wr.station_id = s.station_id
+GROUP BY city;
+```
+
+**Qualities of a relational database**
+
+Notice how the first column of the stations table and weather reading table are unique numeric values. All tables in a relational database have this and it's called the **primary key**. 
+
+Primary keys 
+- Guarantee uniqueness for each row 
+- Enable relationships between tables 
+- Improves query process (fast and precise to reference)
+
+example: 
+`people`
+| personid | name         | age |
+|----------|--------------|-----|
+| 1        | Alex Smith   | 30  |
+| 2        | Jamie Patel  | 45  |
+| 3        | Alex Smith   | 17  | 
+
+Notice that 2 people have the same name here
+
+You may wonder, why do we need a primary key to diferentate these 2 people when there's other qualities like age or maybe DOB that could do that too, but a primary key is still better because of 
+
+- Performance: faster to reference numeric values 
+- Stability: other fields can change
+- Referencing: easier for you to query information a row with a short value
+- Privacy: can keep track of sensitive information with a code 
+
+`legal`
+| legal_event_id | personid | charge        |
+|----------------|----------|---------------|
+| 101            | 1        | Trespassing   |
+| 102            | 2        | Petty Theft   |
+| 103            | 1        | Vandalism     |
+
+Notice how the lega; events table contains the personids, attributing each event to a person
+
+
+---
+Course structure:
+
+1. Exploring an existing database (class 1)
+2. Learning how to create a database (class 2/3)
+3. Analytical project using the `JTCsql.db` database, where you'll use what you've learned to create an analysis of new diversion pilot programs. (class 3)
 
 # SQL Lesson: Exploring a Dataset
 
-This lesson walks students through how to explore a simplified database using basic to intermediate SQL techniques, including `SELECT`, `DISTINCT`, `ORDER BY`, `WHERE`, `JOIN`, and aggregation functions like `COUNT`, `STRING_AGG`, and `CONCAT`.
+This lesson walks students through how to explore a simplified database using basic to intermediate SQL techniques, including `SELECT`, `DISTINCT`, `ORDER BY`, `WHERE`, `JOIN`, and aggregation functions like `COUNT`, `GROUP BY`, `AS` and more.
 
----
-
-## Lesson Goals
-- Query and filter rows using `SELECT`, `WHERE`, and `IN`
-- Sort results with `ORDER BY`
-- Perform string and pattern matching with `LIKE`
-- Use aggregation functions like `COUNT`, `CONCAT`, and `STRING_AGG`
-- Perform `JOIN`s across multiple tables
 
 ---
 
@@ -29,21 +118,19 @@ This lesson walks students through how to explore a simplified database using ba
 | `programmingLU`  | One row per program, with details                |
 
 ---
-## What to Type in your terminal 
+## What to Type in your terminal to get started 
 
-Hit enter after each one. 1-6 are for more readable outputs as we go. 
+Hit enter after each one. 
 
-1. `sqlite3` 
-2. `.open JTCsql.db` 
-3. `.tables` (enter) `
-         when you type this command, you should see the 4 tables appear 
-4. `.headers on`  
-5. `.mode column` 
-6. `.mode box` 
+1. `sqlite3 JTCsql.db` 
+2. `.tables` 
+3. `.headers on`  
+4. `.mode column` 
+5. `.mode box` 
 
 Helpful tip: If you get stuck in a shell: hit `CONTROL + C` 2 times and then reset with sqlite3 JTCsql.db 
 
-sqlite3 is the program we are using and JTCsql.db is the database we are querying
+***sqlite3 is the program we are using and JTCsql.db is the database we are querying***
 
 ## Database Tables
 
@@ -291,6 +378,60 @@ SELECT * FROM demographics WHERE name LIKE '%Ma%';
 SELECT * FROM demographics WHERE name LIKE '%Simpson';
 ```
 
+STUDENTS: I'm looking for someone in the databse whose last name is Smith, but I can't remember their first name. How can I retrieve that?
+
+✅
+```sql
+SELECT * FROM demographics WHERE name LIKE '%Smith%';
+SELECT * FROM demographics WHERE name LIKE '%Smith';
+```
+
+## COUNT + GROUP BY 
+
+Simple counts: 
+
+```sql
+SELECT COUNT(DISTINCT personid) FROM demographics;
+SELECT COUNT(DISTINCT personid) FROM legalall;
+```
+
+STUDENTS: write a query using `COUNT` to figure out how many programs are in the programmingLU table:
+
+For reference: 
+```sql
+SELECT * FROM programmingLU;
+```
+
+✅
+```sql
+SELECT COUNT (DISTINCT name) FROM programmingLU;
+```
+
+`COUNT` can be paired with GROUP BY to aggregate 
+
+See below how we would count the number of people per race in the demographics table:
+```sql
+SELECT race, COUNT(*) AS num_people --num_people is an alias, which allows us to name the column in the output
+FROM demographics
+GROUP BY race;
+```
+
+STUDENTS: using the format of the query above, write a query that counts the number of people per zip code in the demographics table
+
+✅
+```sql
+SELECT zipcode, COUNT(*) AS num_people
+FROM demographics
+GROUP BY zipcode;
+```
+
+What if we want to count the distinct things in a group?
+```sql 
+SELECT zipcode, COUNT(DISTINCT language) AS num_languages
+FROM demographics
+GROUP BY zipcode;
+```
+
 ## 🎮 Student Practice Game 
 
 STUDENTS: Please complete the question and send me the name of the person in a private chat 
@@ -314,7 +455,7 @@ WHERE name LIKE '%s%' AND language = 'English' AND age > 60 AND zipcode = 62704;
 
 3. Please find the NAME of the person who had a Fraud legal event on Feb. 19, 2023. 
 
-Hint: you will need to query the legalall table and then the demographcis table...
+Hint: you will need to query the legalall table and then using information from that, you'll query the demographcis table...
 
 ✅
 ```sql
@@ -385,7 +526,7 @@ STUDENTS: What is a column that this table shares with either the programmingLU 
 ✅ personid
 
 
-STUDENTS: add another join to this statement
+STUDENTS: add another JOIN to this statement
 
 ```sql 
 SELECT personid, name, chargeseligible, referraldate 
@@ -393,6 +534,7 @@ FROM programming p
 JOIN programmingLU lu on p.programluid = lu.programluid;
 ```
 
+✅
 ```sql 
 SELECT personid, name, chargeseligible, referraldate 
 FROM programming p
@@ -417,9 +559,30 @@ JOIN programmingLU lu on p.programluid = lu.programluid
 JOIN demographics d on d.personid = p.personid;
 ```
 
-STUDENTS: please create a table that looks like this 
+STUDENTS: please create a table that looks like this using JOINS 
 
-person name, 
+person name, program name, completion date
+
+✅
+```sql 
+SELECT d.name as [person name], lu.name as [program name], completiondate 
+FROM programming p
+JOIN programmingLU lu on p.programluid = lu.programluid
+JOIN demographics d on d.personid = p.personid;
+```
+You'll notice that some of the program completion dates are NULL, as not everyone has completed their project. What if we only want the output for those with a completion date? 
+
+We can add a where statement: 
+
+```sql 
+SELECT d.name AS [person name], lu.name AS [program name], completiondate 
+FROM programming p
+JOIN programmingLU lu ON p.programluid = lu.programluid
+JOIN demographics d ON d.personid = p.personid
+WHERE completiondate IS NOT NULL;
+```
+
+STUDENTS: add to this where statement to further
 
 
 
@@ -453,52 +616,6 @@ JOIN programming p ON d.personid = p.personid;
 SELECT * FROM demographics d
 LEFT JOIN programming p ON d.personid = p.personid;
 ```
-
-## 💲 COUNT, CONCAT, and Aliases
-
-```sql
-SELECT COUNT(DISTINCT personid) FROM demographics;
-SELECT COUNT(DISTINCT personid) FROM legalall;
-```
-
-```sql
--- AS renames columns
-SELECT name AS "Full Name", age AS "Age in Years" FROM demographics;
-
--- CONCAT joins values in a row
-SELECT name, age, CONCAT(name, age) AS nameandage FROM demographics;
-SELECT name, age, CONCAT(name, ' ', age) AS nameandage FROM demographics;
-```
-
-```sql
---
-SELECT CONCAT(name, ',', zipcode) AS nameandzip FROM demographics;
-```
-
----
-
-## 🥝 STRING_AGG Across Rows
-
-```sql
-SELECT * FROM legalall;
-
--- Topcharges grouped by person
-SELECT personid, STRING_AGG(topcharge, ', ') AS personidandcharge
-FROM legalall
-GROUP BY personid;
-```
-
-```sql
---
-SELECT personid, STRING_AGG(DISTINCT topcharge, ', ') AS personidandcharge
-FROM legalall
-GROUP BY personid;
-```
-
---returning to the examole in order by.
-SELECT zipcode, GROUP_CONCAT(DISTINCT language) AS languages
-FROM demographics
-GROUP BY zipcode;
 
 ---
 
