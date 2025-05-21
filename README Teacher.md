@@ -2,6 +2,14 @@
 
 Instructor: Dylan Comerford (dylancomerford1@gmail.com)
 
+Goal by class 3: To teach everyone enough SQL skills to confidently say you have a strong foundation in this area and to learn about the different practical applications of having this skillset. 
+
+Throughout the class, there's practice prompts for you to respond to that will start with "STUDENTS:"
+
+When you see this, please type an answer into the chat 
+
+STUDENTS: What is one app that you use every day that you think probably relies on a database? and what may go wrong if all of that data is stored in one single spreadsheet?
+
 # Background: What is a relational database and what is the point of using one? 
 
 Scenario: You're working for a company that tracks global weather data. Every day, the system you created collects readings from thousands of weather stations around the world — temperature, humidity, wind speed, and more. The data collected needs to be stored somewhere. 
@@ -29,7 +37,7 @@ table `stations`
 | 1          | Station A | NYC    | USA     | 40.71    | -74.01    |
 | 2          | Station B | Tokyo  | Japan   | 35.68    | 139.69    |
 
-table `weather readings`
+table `weather_readings`
 | reading_id | station_id | date       | temperature | wind_speed | humidity |
 |------------|------------|------------|-------------|------------|----------|
 | 1          | 1          | 2025-05-19 | 68°F        | 12mph      | 70%      |
@@ -43,7 +51,7 @@ Now:
 
 We can use a SQL Query to edit and analyze this data easily. 
 
-Soon you'll understand how this query works, but the power of this query is allowing us to know the follwoing city-level insights from potentially thousands of readings with 4 simple lines of code:
+The power of SQL allows us to draw the follwoing city-level insights from potentially thousands of readings with 4 simple lines of code:
 
 | city  | AVG(temperature) |
 |-------|------------------|
@@ -67,55 +75,65 @@ Primary keys
 - Enable relationships between tables 
 - Improves query process (fast and precise to reference)
 
-example: 
-`people`
+
+table 1: `people`
 | personid | name         | age |
 |----------|--------------|-----|
 | 1        | Alex Smith   | 30  |
 | 2        | Jamie Patel  | 45  |
 | 3        | Alex Smith   | 17  | 
 
-Notice that 2 people have the same name here
+STUDENTS: why is it important that we have a primary key in this table?
 
-You may wonder, why do we need a primary key to diferentate these 2 people when there's other qualities like age or maybe DOB that could do that too, but a primary key is still better because of 
+✅
+2 people have the same name and the primary key makes sure they are distinguished.
+
+You may wonder, why do we need a primary key to diferentate these 2 people when there's other qualities like age or maybe DOB that could do that too?
+
+Benefits of a primary key:
 
 - Performance: faster to reference numeric values 
 - Stability: other fields can change
-- Referencing: easier for you to query information a row with a short value
 - Privacy: can keep track of sensitive information with a code 
 
-`legal`
+table 2: `legal` : contains legal events (a peron may have more than 1)
 | legal_event_id | personid | charge        |
 |----------------|----------|---------------|
 | 101            | 1        | Trespassing   |
 | 102            | 2        | Petty Theft   |
 | 103            | 1        | Vandalism     |
 
-Notice how the lega; events table contains the personids, attributing each event to a person
+Notice how the legal events table contains the personids, attributing each event to a person.
 
+When a primary key from one table appears in another for reference, it's called a **Foriegn Key** (ex. station_id in the weather table, personid in the legal table)
+
+Background section question: 
+
+As we saw above, tables in a relational database are split into smaller topics instead of storing all of the information in one table. 
+
+STUDENTS: let's say you are making an app for a library and so you need to design a database to store information. What are some tables that you may make as a part of this database?
+
+✅
+- books – stores information about each book (title, author, genre, ISBN)
+- authors – stores information about each author (name, birth year, nationality)
+- members – stores people who can check out books (name, email, membership date)
+- loans – stores book checkouts (which member checked out which book and when)
+- staff – stores librarians or staff managing the library system
+- genres – optional lookup table for genre categories
+- publishers – stores publishing details if you want to track where books came from
 
 ---
-Course structure:
+Course structure for the 3 SQL courses:
 
-1. Exploring an existing database (class 1)
-2. Learning how to create a database (class 2/3)
-3. Analytical project using the `JTCsql.db` database, where you'll use what you've learned to create an analysis of new diversion pilot programs. (class 3)
+1. Exploring an existing database 
+2. Learning how to create a database 
+3. Analytical project using the `JTCsql.db` database, where you'll use what you've learned to create an analysis of new diversion pilot programs. 
+4. With your next instructor, you'll learn how to integrate these skills with an application you build
 
 # SQL Lesson: Exploring a Dataset
 
-This lesson walks students through how to explore a simplified database using basic to intermediate SQL techniques, including `SELECT`, `DISTINCT`, `ORDER BY`, `WHERE`, `JOIN`, and aggregation functions like `COUNT`, `GROUP BY`, `AS` and more.
+This lesson walks students through how to explore a simplified database using basic to intermediate SQL techniques, including `SELECT`, `DISTINCT`, `ORDER BY`, `WHERE`, `JOIN`, `COUNT`, `GROUP BY`, `AS` and more.
 
-
----
-
-## Tables Overview
-
-| Table Name       | Description                                      |
-|------------------|--------------------------------------------------|
-| `demographics`   | One row per person in the dataset                |
-| `legalall`       | One row per legal event — a person may have many|
-| `programming`    | One row per person referred to programming       |
-| `programmingLU`  | One row per program, with details                |
 
 ---
 ## What to Type in your terminal to get started 
@@ -128,16 +146,35 @@ Hit enter after each one.
 4. `.mode column` 
 5. `.mode box` 
 
-Helpful tip: If you get stuck in a shell: hit `CONTROL + C` 2 times and then reset with sqlite3 JTCsql.db 
+Helpful tip: If you get stuck in a shell/ your commands aren't working : hit `CONTROL + C` 2 times and then reset by typing `sqlite3 JTCsql.db` 
 
-***sqlite3 is the program we are using and JTCsql.db is the database we are querying***
+`sqlite3` is the Relational Database Management System, or RDBMS we are using and `JTCsql.db` is the database we are querying. Other RDBMSs include:
 
-## Database Tables
+SQLite (what you’re using in this class — simple and fast) 
+PostgreSQL (open-source, great for web apps)
+MySQL (commonly used in websites) 
+SQL Server (used in enterprise and business settings) 
+Oracle DB (used in large corporations) 
+
+## Tables Overview
+
+| Table Name       | Description                                      |
+|------------------|--------------------------------------------------|
+| `demographics`   | One row per person in the dataset                |
+| `legalall`       | One row per legal event — a person may have multiple|
+| `programming`    | One row per person referred to programming       |
+| `programmingLU`  | One row per program, with details                |
+
+
+
+## JTCsql.db Tables
+
+Mock database of a court based program data: 
 
 ```sql
 SELECT * FROM demographics;     -- 1 row for every person in the dataset
 SELECT * FROM legalall;         -- 1 row for every legal event (a person may have many)
-SELECT * FROM programming;      -- 1 row per person referred to programming
+SELECT * FROM programming;      -- 1 row per person who is referred to programming
 SELECT * FROM programmingLU;    -- 1 row per program
 ```
 
@@ -162,7 +199,7 @@ SELECT * FROM demographics;
 
 ### SELECT vs SELECT DISTINCT
 
-**In what situations may we want to see everything in a colum vs. every unique thing in a column?**
+**In what situations may we want to see everything in a column vs. every unique thing in a column?**
 
 ```sql
 SELECT zipcode FROM demographics;            -- lists every zipcode 
@@ -185,10 +222,11 @@ STUDENTS: a researcher wants a list of everyone in our demographics table, would
 ```sql
 SELECT name FROM demographics;
 ```
-In some situations, we want potential repeats. For example, imagine if 2 people have the same name. These individuals should both still be accounted for. 
+In some situations, we do want potential repeats. For example, imagine if 2 people have the same name. These individuals should both still be accounted for. 
 
 
 **How can we select more than one thing from a table?**
+
 ```sql
 SELECT DISTINCT language, zipcode FROM demographics;
 ```
@@ -200,7 +238,6 @@ STUDENTS: try selecting the unique combination of race and gender from the demog
 SELECT DISTINCT race, gender FROM demographics;
 ```
 
----
 
 ## Sorting with ORDER BY
 
@@ -210,7 +247,7 @@ SYNTAX:
 ```sql
 SELECT desiredcolumn(s) FROM tablename and ORDER BY desiredcolumn
 ```
-Let's say we want to view the different combinations of langauge and zipcodes in the demographcis table. We would write this query:
+Let's say we want to view the different combinations of language and zipcodes in the demographcis table. We would write this query:
 
 QUERY 1: 
 ```sql
@@ -243,17 +280,15 @@ Let's explore more of our database.
 SELECT * FROM demographics;                  -- 1 row per person
 SELECT * FROM legalall;                      -- 1 row per case
 ```
-The demographcis table contains information about each person in the database. 
+The demographics table contains information about each person in the database. 
 
 The legalall table contains information about each legal event in the database, so there could be more than 1 row per person. 
 
-The organization of this table happens to be by person, but oftentimes the rows of tables are not organized in any particular way. 
+The organization of this table happens to be by person, but often times the rows of tables are not organized in any particular way. 
 
-Let's day you are reviewing legal events by charge and you want to view this table more clearly since all of the charges are currently mixed together. 
+Let's say you are reviewing legal events by charge and you want to view this table more clearly since all of the charges are currently mixed together. 
 
 STUDENTS: looking at the legalall table, which column should we order by?
-
-SELECT * FROM legalall;   
 
 ✅
 topcharge
@@ -267,7 +302,7 @@ STUDENTS: Now, we not only want to see all of the events with a certain charge g
 Hint: 
 the format for ordering by more than 1 column is:
 ```sql 
-SELECT * FROM tablename ORDER BY column1, column2
+SELECT * FROM tablename ORDER BY column1, column2;
 ```
 
 ✅
@@ -281,14 +316,15 @@ Let's go back to the demographics table.
 SELECT * FROM demographics;
 ```
 
-Assume you are a researcher who has come across this table and who is interested in how many people in different age groups have encounters with the cirminal justice system. What column might you ORDER BY to read this table more clearly?
+Assume you are a researcher who has come across this table and who is interested in how many people in different age groups have encounters with the criminal justice system. What column might you ORDER BY to read this table more clearly?
 
+✅
+age 
 ```sql
---
 SELECT * FROM demographics ORDER BY age;
 ```
 
-SQL defualts order by least to greatest, but we can also use DESC and ASC to specify if we want to see things in ascending or descending order. 
+SQL defualts order by least to greatest, but we can also use `DESC` and `ASC` to specify if we want to see things in ascending or descending order. 
 
 ```sql
 SELECT * FROM demographics ORDER BY age DESC;
@@ -581,6 +617,8 @@ JOIN programmingLU lu ON p.programluid = lu.programluid
 JOIN demographics d ON d.personid = p.personid
 WHERE completiondate IS NOT NULL;
 ```
+--- 
+in progress below ...
 
 STUDENTS: add to this where statement to further
 
