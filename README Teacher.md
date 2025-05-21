@@ -2,8 +2,6 @@
 
 Instructor: Dylan Comerford (dylancomerford1@gmail.com)
 
-Goal by class 3: To teach everyone enough SQL skills to confidently say you have a strong foundation in this area and to learn about the different practical applications of having this skillset. 
-
 Throughout the class, there's practice prompts for you to respond to that will start with "STUDENTS:"
 
 When you see this, please type an answer into the chat 
@@ -143,8 +141,7 @@ Hit enter after each one.
 1. `sqlite3 JTCsql.db` 
 2. `.tables` 
 3. `.headers on`  
-4. `.mode column` 
-5. `.mode box` 
+4. `.mode box` 
 
 Helpful tip: If you get stuck in a shell/ your commands aren't working : hit `CONTROL + C` 2 times and then reset by typing `sqlite3 JTCsql.db` 
 
@@ -343,20 +340,19 @@ SELECT * FROM demographics ORDER BY name ASC;
 ## WHERE, IN, and Wildcard Searches + a game! 
 Sometimes, we do not need to see all of the data in a table. We can refine it using `WHERE`. 
 
-Examples: 
 
-I am looking into the people in our database that are Asian. While I could use `ORDER BY` race and find these people, `WHERE` allows me to only view the people I am interested in. 
+I am specifically interested in looking for Asian people in our database. While I could use `ORDER BY` race and find these people, `WHERE` allows me to only view the people I am interested in. 
 ```sql
 SELECT * FROM demographics WHERE race = 'Asian';
 ```
 
 STUDENTS: let's say I am interested in viewing this same list of Asian people, but I want it to be in the order of oldest to youngest
 
-HINT: ORDER BY comes after WHERE 
+HINT: `ORDER BY` comes after `WHERE` 
 
 ✅
 ```sql
-SELECT * FROM demographics WHERE race = 'Asian' ORDER BY age desc;
+SELECT * FROM demographics WHERE race = 'Asian' ORDER BY age DESC;
 ```
 
 Another example: I want to view anyone in the dataset who is 40 years old. 
@@ -364,19 +360,26 @@ Another example: I want to view anyone in the dataset who is 40 years old.
 SELECT * FROM demographics WHERE age = 40;
 ```
 
-WHERE statements can also be used to identify a range for numbers and dates: 
+`WHERE` statements can also be used to identify a range for numbers and dates: 
 
 ```sql
 SELECT * FROM demographics WHERE age < 40 AND age > 20; --between 20 and 40
 SELECT * FROM legalall WHERE courtdate <= '2024-03-13'; -- on or before this date
 ```
 
-We can also refine to groups of items using IN or multiple = statements
+We can also refine to groups of items using `WHERE` + `IN` or multiple = statements
 ```sql
 SELECT * FROM demographics WHERE zipcode IN (62703, 62701);
 SELECT * FROM demographics WHERE zipcode = 62703 OR zipcode = 62701;
 ```
 Notice how these 2 statements do the same thing. 
+
+STUDENTS: please use `WHERE` + `IN` to refine the data in demographics to include only Gary the Snail and SpongeBob SquarePants' records. 
+
+✅
+```sql
+SELECT * FROM demographics WHERE name IN ('Gary the Snail', 'SpongeBob SquarePants');
+```
 
 `WHERE` statements can also contain more complex logic:
 
@@ -397,7 +400,6 @@ Hint: Use () like this: (criteria one) OR (criteria two)
 
 ✅
 ```sql
---
 SELECT * FROM demographics
 WHERE (language = 'Spanish' AND zipcode = 62703)
    OR (language = 'English' AND zipcode = 62701);
@@ -433,7 +435,7 @@ SELECT COUNT(DISTINCT personid) FROM legalall;
 
 STUDENTS: write a query using `COUNT` to figure out how many programs are in the programmingLU table:
 
-For reference: 
+For referencing column names: 
 ```sql
 SELECT * FROM programmingLU;
 ```
@@ -447,7 +449,7 @@ SELECT COUNT (DISTINCT name) FROM programmingLU;
 
 See below how we would count the number of people per race in the demographics table:
 ```sql
-SELECT race, COUNT(*) AS num_people --num_people is an alias, which allows us to name the column in the output
+SELECT race, COUNT(*) AS num_people --num_people is an alias to name the column in the output
 FROM demographics
 GROUP BY race;
 ```
@@ -617,8 +619,66 @@ JOIN programmingLU lu ON p.programluid = lu.programluid
 JOIN demographics d ON d.personid = p.personid
 WHERE completiondate IS NOT NULL;
 ```
+
+Last 2 questions for class: 
+
+STUDENTS: You want to know how many legal events each person in the database has had. What SQL statement would you write using COUNT and GROUP BY?
+
+✅
+```sql 
+SELECT personid, COUNT(*) AS num_legal_events
+FROM legalall
+GROUP BY personid;
+```
+OR 
+```sql
+SELECT personid, COUNT(DISTINCT legaleventid) AS num_legal_events
+FROM legalall
+GROUP BY personid;
+```
+
+STUDENTS: What would we do if we want this to be a count with people's names instead of their personids? 
+
+Hint for the GROUP BY: if 2 tables have the same column, you need to specify which table you're getting it from using the alias (ex. if both table A and table B have a referraldate column, you need to specifiy that you want a.referraldate or b.referraldate)
+
+✅
+```sql 
+SELECT name, COUNT(*) AS num_legal_events
+FROM legalall l 
+JOIN demographics d on l.personid = d.personid
+GROUP BY l.personid;
+```
+
+
+RECAP: In this class you've learned how a relational database works and why we use them and how to retrieve information from a database using tools like `SELECT`, `DISTINCT`, `ORDER BY`, `WHERE`, `JOIN`, `COUNT`, `GROUP BY`, `AS`.
+
+In our next class, we will go over your homework questions, do a short recap and then launch into our next subjects, including: 
+1. Advanced aggregating/ counting 
+2. Complex JOINS 
+3. Creating your own database 
+
 --- 
-in progress below ...
+Homework:
+
+1. Why is it ideal to use multiple tables instead of one giant table in a relational database?
+2. Write a SQL query that counts the number of people in the demographics table for each zipcode who are under 30. 
+3. You want to know how many people were referred to each program in the database. Referral information is stored in the programming table.Program names are stored in the programmingLU table. Write a SQL query that shows the program name and the number of people referred to each one.
+
+
+2. 
+```sql
+SELECT zipcode, COUNT(*) AS num_people FROM demographics WHERE age > 30 GROUP BY zipcode;
+```
+
+3. 
+```sql
+SELECT lu.name AS program_name, COUNT(*) AS num_referrals
+FROM programming p
+JOIN programmingLU lu ON p.programluid = lu.programluid
+GROUP BY lu.name;
+```
+
+# in progress below
 
 STUDENTS: add to this where statement to further
 
