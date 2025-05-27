@@ -682,7 +682,9 @@ GROUP BY lu.name;
 
 # Welcome back to SQL Lesson #2
 
-In the next 2 courses, we will learn complex joins, subqueries, creating your own database, and then we will end with an analytical project. 
+In the next 2 courses, we will learn more about joins, using HAVING, creating your own database/tables, and then we will end with an analytical project. 
+
+Intro Question: What's been your favorite SQL skill or concept so far — or the one that “clicked”?
 
 **Let's begin with a reivew:**
 
@@ -773,7 +775,7 @@ SELECT zipcode, COUNT(*) AS num_people FROM demographics ...
 SELECT zipcode, COUNT(*) AS num_people FROM demographics GROUP BY zipcode;
 ```
 
-4. STUDENTS: finish the code to return all Fraud charges, with the most recent one first: 
+4. STUDENTS: finish the code to return all legal events with a Fraud charge, with the most recent one first: 
 ```sql
 SELECT * FROM legalall WHERE topcharge = 'Fraud' ...
 ```
@@ -804,7 +806,7 @@ Let's say we have 2 tables in a dataset:
 
 As we discussed in the last class, information in a relational database is split into smaller sections, but let's say you'd like to make a table with the following information: 
 
-Owner, Pet Name
+Owner, Pet Name. These 2 columns live in 2 different tables. 
 
 A `JOIN` allows you to combine information from 2 tables. 
 
@@ -820,7 +822,10 @@ JOIN pets pe ON p.personid = pe.personid;
 | Bob   | Rex       |
 | Bob   | Daisy     |
 
-NOTICE: Carla from the people table is not included here. That's because with a `JOIN`, there must be a field present in both tables and Carla doesn't have a pet. 
+Notice:
+Carla from the people table doesn't appear in the results. That’s because the type of JOIN we’re using (also called an INNER JOIN) only shows rows where there’s a match in both tables.
+
+In this case, only people who have a matching personid in the pets table will show up. Since Carla doesn’t have any pets listed, there's no matching row for her in the pets table — so she's excluded from the result.
 
 If we still want Carla to appear, we use a `LEFT JOIN`. 
 
@@ -830,7 +835,7 @@ FROM people
 LEFT JOIN pets ON people.personid = pets.ownerid;
 ```
 
-Now the table in the left join CAN have a blank field: 
+Now we can still get information from both tables, but the table in the left join CAN have a blank field: 
 
 | name  | pet_name |
 | ----- | --------- |
@@ -857,9 +862,11 @@ WHERE p.name LIKE 'A%';
 | ----- | --------- |
 | Alice | Fluffy    |
 
-STUDENTS: Write a query to list all people who don’t have any pets (i.e., only those whose pet_name is NULL)
+STUDENTS: Write a query to list all people who don’t have any pets 
 <details>
 <summary>need a hint?</summary>
+No pets = only those whose pet_name is NULL. 
+
 You will need to use LEFT JOIN and WHERE to complete this question. 
 </details>
 
@@ -896,7 +903,7 @@ GROUP BY p.name;
 
 Let's apply these skills to `JTCsql.db`
 
-The demographics table has 1 row per person. The program table has 1 row per person who was referred to programming. 
+The demographics table has 1 row per person. The programming table has 1 row per person who was referred to programming. 
 
 STUDENTS: what is the difference in output between these 2 queries?
 
@@ -910,9 +917,7 @@ SELECT * FROM demographics d
 LEFT JOIN programming p on d.personid = p.personid;
 ```
 
-✅
-The query using `JOIN` will only include people who are also included in the programming table/ who have been referred to programming. 
-THe query using `LEFT JOIN` will include every person in the demographics table regardless of if they exist in the programming table /if they have been referred to programming. 
+✅ JOIN includes only referred people because a person must be in both the demographics and the programming table. LEFT JOIN includes everyone in demographics and information from programming if it exists.
 
 STUDENTS: 
 I would like to make a table with a person's name (demographics table) and the program referral date (programming). 
@@ -950,7 +955,17 @@ JOIN programming p on d.personid = p.personid
 LEFT JOIN programmingLU lu on lu.programluid = p.programluid;
 ```
 
--------note to self: false data row? 
+One last practice problem before we move on to the next section: 
+
+STUDENTS: Please query the name, court date, and topcharge of any individual with a Theft legal event. 
+
+✅
+```sql
+SELECT name, courtdate, topcharge
+FROM demographics d
+JOIN legalall l on d.personid = l.personid
+WHERE topcharge = 'Theft';
+```
 
 # HAVING
 
@@ -964,7 +979,7 @@ GROUP BY lu.name;
 ```
 `HAVING` is used to filter groups after you've used `GROUP BY`. Think of it as `WHERE` but for grouped results. 
 
-Let's say we want to refine this list to only include programs with over 5 people referred. This is when we woild use HAVING 
+Let's say we want to refine this list to only include programs with over 5 people referred. This is when we would use HAVING 
 
 ```sql
 SELECT lu.name AS program_name, COUNT(*) AS num_referrals
@@ -974,7 +989,7 @@ GROUP BY lu.name
 HAVING COUNT(*) > 5;
 ```
 
-STUDENTS: Write a query that shows each zip code in the demographics table that has more than 10 people in it.
+STUDENTS: Write a query that shows a count of people per zip code in the demographics table but only for zipcodes that have more than 10 people in it.
 
 ✅
 ```sql
@@ -993,6 +1008,7 @@ FROM legalall
 GROUP BY topcharge
 HAVING COUNT(*) > 2;
 ```
+
 
 # CRUD OPERATIONS 
 
@@ -1016,7 +1032,7 @@ Each column of a table is assigned a data type. It's important to pick the corre
 | Data Type      | Description                                              | Example                          |
 |----------------|----------------------------------------------------------|----------------------------------|
 | `INTEGER`      | Whole numbers (used for IDs, counts, etc.)               | `42`, `0`, `-3`                  |
-| `TEXT`         | Any string value                                         | `'Pizza'`, `'New York'`          |
+| `TEXT`         | Any string value  (replaced w/VARCHAR in SQLServer)                                       | `'Pizza'`, `'New York'`          |
 | `VARCHAR(n)`   | A string with a max length of `n` (acts like `TEXT`)     | `'Tacos'`, `'Pad Thai'`          |
 | `REAL`         | Floating-point numbers (decimals)                        | `8.5`, `3.14`                    |
 | `DECIMAL(p,s)` | Precise decimal with `p` digits total, `s` after point   | `DECIMAL(6,2)` → `9999.99`       |
@@ -1081,20 +1097,39 @@ STUDENTS: Try to rename the Deep Dish Pizza to Thin Crust Pizza
 ```sql 
 UPDATE food 
 SET foodname = 'Thin Crust Pizza' 
-WHERE foodname = 'Deep Dish Pizza' 
+WHERE foodname = 'Deep Dish Pizza' ;
+```
+
+STUDENTS: Try to fix the rating of tacos to be 8.
+
+✅
+```sql 
+UPDATE food 
+SET rating = 8
+WHERE foodname = 'Tacos' ;
 ```
 
 ## Part 4: Delete
 Remove data (carefully) from the dataset 
 
-See below the format for deleting things from a dataset 
+STUDENTS: Why do you think it is important to use a WHERE clause when running an UPDATE or DELETE statement? What would happen if you don’t?
+
+✅
+Answer:
+The WHERE clause specifies which rows should be updated or deleted. Without it, the command applies to every row in the table.
+
+In an UPDATE statement, forgetting the WHERE clause means all rows will be changed to the new value.
+
+In a DELETE statement, it means you will delete the entire table’s data — which is often irreversible in SQLite.
+
+See below the format for deleting things from a dataset:
 
 ```sql 
 DELETE FROM tablename 
 WHERE column = ' '
 ```
 
-STUDENTS: Last night you ate sushi and got food poisoning so you want to delete your sushi entry from the database. 
+STUDENTS: Last night you ate sushi and got food poisoning so you want to delete your sushi entry from the database [dont actually run this]. 
 
 ✅
 ```sql 
@@ -1102,7 +1137,7 @@ DELETE FROM food
 WHERE foodname = 'Sushi';
 ```
 
-STUDENTS: We only want top noth food in our data now. Please remove any food with a rating under 8. 
+STUDENTS: We only want top notch food in our data now. Please remove any food with a rating under 8 [don't actually run this]. 
 
 ✅
 ```sql 
@@ -1142,6 +1177,51 @@ CREATE TABLE menu_items (
     restaurant_id INTEGER REFERENCES restaurants(restaurant_id),
     price DECIMAL (6,2)
 );
+
+-- Now let’s create a third table that connects foods to restaurants.
+-- This is called a “junction table” and allows relationships to be has between the foods and restaurants tables.
+-- Each row will represent a menu item (a specific food served at a specific restaurant).
+
+INSERT INTO menu_items (food_id, restaurant_id, price)
+VALUES
+  (4, 1, 12.99),  -- Thin Crust Pizza at Joe's Pizza
+  (1, 2, 14.50),  -- Sushi at Sushi Go
+  (2, 3, 9.75),   -- Tacos at La Taqueria
+  (5, 4, 7.25);   -- Hot Dog at Green Earth
+```
+
+STUDENTS: using informtion from the `menu_items`, `food`, and `restaurants` tables, please make a query that returns the `food name`, `restaurant name`, and `price`. 
+
+✅
+```sql
+SELECT f.foodname, r.name AS restaurant_name, mi.price
+FROM menu_items mi
+JOIN food f ON mi.food_id = f.foodid
+JOIN restaurants r ON mi.restaurant_id = r.restaurant_id;
+```
+
+STUDENTS: please write a query that gives us the food name and the restaurant name 
+
+HINT: we will still need the menu_items table here because it links tables to one another 
+
+✅
+```sql
+SELECT 
+  f.foodname, 
+  r.name AS restaurant_name
+FROM menu_items mi
+JOIN food f ON mi.food_id = f.foodid
+JOIN restaurants r ON mi.restaurant_id = r.restaurant_id
+WHERE r.location LIKE '%Chicago%';
+```
+STUDENTS: Write a query to find all restaurants that serve more than one menu item. List the restaurant name and the number of items they serve.
+
+```sql
+SELECT r.name, COUNT(*) AS item_count
+FROM menu_items mi
+JOIN restaurants r ON mi.restaurant_id = r.restaurant_id
+GROUP BY r.name
+HAVING COUNT(*) > 1;
 ```
 
 STUDENTS TRY: 
@@ -1199,6 +1279,8 @@ WHERE caffeine > 30
 ORDER BY caffeine DESC;
 ```
 
+`rm dylan.db` (into the nain terminal) allows you to remove a local database (command this outside of the sqlite3 shell)
+
 # Analytics Project 
 
 Scenario: Your office has launched 4 pilot diversion programs. Leadership wants a summary of how these programs are performing and who they’re reaching. Your job is to query the database and create a short, clear report that answers the questions below.
@@ -1222,10 +1304,26 @@ GROUP BY programluid;
 ```
 </details>
 
+
+<details>
+<summary> Answer queries </summary>
+
+```sql 
+SELECT DISTINCT name FROM programmingLU;
+
+SELECT name, chargeseligible FROM programmingLU;
+
+SELECT lu.name, COUNT(*) AS num_referrals
+FROM programming p
+JOIN programmingLU lu ON p.programluid = lu.programluid
+GROUP BY lu.name;
+```
+</details>
+
 ### 2. 👥 Participant Demographics
 - What is the racial breakdown of participants in each program?
 - What is the gender breakdown?
-- What is the average age per program?
+- What is the average age per program? -- Hint: use AVG() instead of COUNT()
 
 <details> <summary>💡 Starter queries</summary>
 
@@ -1239,6 +1337,29 @@ SELECT programluid, AVG(age)
 FROM programming p
 JOIN demographics d ON p.personid = d.personid
 GROUP BY programluid;
+```
+</details>
+
+<details> <summary>Answer queries</summary>
+
+```sql
+SELECT lu.name, d.race, COUNT(*) AS num_people
+FROM programming p
+JOIN demographics d ON p.personid = d.personid
+JOIN programmingLU lu ON p.programluid = lu.programluid
+GROUP BY lu.name, d.race;
+
+SELECT lu.name, d.gender, COUNT(*) AS num_people
+FROM programming p
+JOIN demographics d ON p.personid = d.personid
+JOIN programmingLU lu ON p.programluid = lu.programluid
+GROUP BY lu.name, d.gender;
+
+SELECT lu.name, AVG(d.age) AS avg_age
+FROM programming p
+JOIN demographics d ON p.personid = d.personid
+JOIN programmingLU lu ON p.programluid = lu.programluid
+GROUP BY lu.name;
 ```
 </details>
 
@@ -1264,6 +1385,28 @@ FROM (
 JOIN programming p ON l.personid = p.personid
 GROUP BY programluid;
 ```
+</details>
+
+<details> <summary>Answer queries</summary>
+
+```sql
+SELECT lu.name, AVG(event_counts.num_events) AS avg_legal_events
+FROM (
+  SELECT personid, COUNT(*) AS num_events
+  FROM legalall
+  GROUP BY personid
+) AS event_counts
+JOIN programming p ON event_counts.personid = p.personid
+JOIN programmingLU lu ON p.programluid = lu.programluid
+GROUP BY lu.name;
+
+SELECT lu.name, l.topcharge, COUNT(*) AS num_cases
+FROM programming p
+JOIN legalall l ON p.personid = l.personid
+JOIN programmingLU lu ON p.programluid = lu.programluid
+GROUP BY lu.name, l.topcharge
+ORDER BY lu.name, num_cases DESC;
+```
 
 </details>
 
@@ -1286,15 +1429,51 @@ GROUP BY programluid;
 ```
 </details>
 
+<details> <summary>Answer queries</summary>
+
+```sql
+SELECT lu.name, COUNT(*) AS num_completed
+FROM programming p
+JOIN programmingLU lu ON p.programluid = lu.programluid
+WHERE p.completiondate IS NOT NULL
+GROUP BY lu.name;
+
+SELECT lu.name, COUNT(*) AS not_completed
+FROM programming p
+JOIN programmingLU lu ON p.programluid = lu.programluid
+WHERE p.completiondate IS NULL
+GROUP BY lu.name;
+```
+</details>
+
 ### 5.⭐️ Optional Analysis (Challenge)
 - Which program has the highest completion rate?
 - Which program serves the youngest or oldest participants?
 
 <details> <summary>💡 Starter query idea</summary>
 
-
 -- Completion rate = completions / referrals
 -- Use subqueries or join 2 grouped tables on programluid
+
+</details>
+
+<details> <summary>Answer queries</summary>
+
+```sql
+SELECT lu.name,
+  COUNT(CASE WHEN p.completiondate IS NOT NULL THEN 1 END) * 1.0 / COUNT(*) AS completion_rate
+FROM programming p
+JOIN programmingLU lu ON p.programluid = lu.programluid
+GROUP BY lu.name
+ORDER BY completion_rate DESC;
+
+SELECT lu.name, AVG(d.age) AS avg_age
+FROM programming p
+JOIN demographics d ON p.personid = d.personid
+JOIN programmingLU lu ON p.programluid = lu.programluid
+GROUP BY lu.name
+ORDER BY avg_age ASC;
+```
 
 </details>
 
