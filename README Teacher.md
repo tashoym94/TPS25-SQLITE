@@ -680,56 +680,349 @@ GROUP BY lu.name;
 
 # in progress below
 
-STUDENTS: add to this where statement to further
+# Welcome back to SQL Lesson #2
+
+In the next 2 courses, we will learn complex joins, subqueries, creating your own database, and then we will end with an analytical project. 
+
+**Let's begin with a reivew:**
+
+SETUP: 
+
+Start by typing the following into your terminal:
+1. sqlite3 JTCsql.db     (command for program + database instructions)
+2. .mode box             (for formatting output)
+3. .headers on           (for formatting output)
+
+STUDENTS: What is a primary key vs. a foreign key? 
+
+✅ 
+
+A primary key is a unique identifier for each row in a table (like `personid` in the demographics table). A foreign key is a column in one table that refers to the primary key of another table — it creates the link between the tables.
+
+STUDENTS: What's the difference between `SELECT` and `SELECT DISTINCT`?
+
+✅ 
+
+SELECT shows all the data from a column, including repeats. 
+SELECT DISTINCT only shows the unique values in that column — like if you only want to see which languages appear, not how many times they appear.
+
+STUDENTS: How does `ORDER BY` help us interpret results? 
+
+✅ 
+`ORDER BY` lets us sort data in a way that makes patterns easier to spot — like oldest to youngest, or grouping all legal events by charge name.
+
+STUDENTS:  Match the SQL keyword to its use case by pairing numbers with letters (e.g., 1 → B):**
 
 
+| # | SQL Keyword |
+|---|-------------|
+| 1 | `WHERE`      |
+| 2 | `IN`          |
+| 3 | `LIKE`        |
 
+
+| Letter | Use Case                                      |
+|--------|-----------------------------------------------|
+| A      | General filtering for one value or condition  |
+| B      | Pattern matching for partial text values      |
+| C      | Filtering for multiple specific values        |
+
+✅  
+1 → A  
+2 → C  
+3 → B
+
+
+| SQL Example                                                         | What It Returns                                      |
+|----------------------------------------------------------------------|-------------------------------------------------------|
+| `SELECT * FROM demographics WHERE age > 40;`                         | All people over the age of 40                        |
+| `SELECT * FROM demographics WHERE zipcode IN (62701, 62703);`       | People who live in zipcode 62701 or 62703           |
+| `SELECT * FROM demographics WHERE name LIKE 'Ma%';`                 | Names that start with "Ma", like Maria or Marcus     |
+
+Code Completion Practice
+
+1. STUDENTS: Complete the code below to return all of the langauges spoken in the dataset 
 ```sql
-SELECT * FROM legalall;
---
-SELECT * FROM demographics;
+SELECT DISTINCT ________ FROM demographics;
+``` 
+
+✅  
+```sql
+SELECT DISTINCT language FROM demographics;
+``` 
+
+
+2. STUDENTS: Complete the code to return the number of females over 25 in the demographics table
+``` sql 
+SELECT COUNT(*) FROM demographics WHERE age > 25 AND ...
 ```
 
+✅  
 ```sql
---
-SELECT * FROM legalall l
-JOIN demographics d ON l.personid = d.personid;
+SELECT COUNT(*) FROM demographics WHERE age > 25 AND gender = 'Female';
 ```
 
+
+3. STUDENTS: Finish the code so that it returns the number of people in each zipcode
 ```sql
--- We want all of legalall and just name/age from demographics
-SELECT l.*, d.name, d.age
-FROM legalall l
-JOIN demographics d ON l.personid = d.personid;
+SELECT zipcode, COUNT(*) AS num_people FROM demographics ...
 ```
 
+✅  
+```sql 
+SELECT zipcode, COUNT(*) AS num_people FROM demographics GROUP BY zipcode;
+```
+
+4. STUDENTS: finish the code to return all Fraud charges, with the most recent one first: 
 ```sql
---
+SELECT * FROM legalall WHERE topcharge = 'Fraud' ...
+```
+
+✅
+```sql
+SELECT * FROM legalall WHERE topcharge = 'Fraud' ORDER BY courtdate DESC;
+```
+
+# JOINS
+
+Let's say we have 2 tables in a dataset:
+
+`people`
+| personid | name  |
+|----------|-------|
+| 1        | Alice |
+| 2        | Bob   |
+| 3        | Carla |
+
+`pets`
+| petid | personid | pet_name |
+|-------|---------|----------|
+| 101   | 1       | Fluffy   |
+| 102   | 2       | Rex      |
+| 103   | 2       | Daisy    |
+
+
+As we discussed in the last class, information in a relational database is split into smaller sections, but let's say you'd like to make a table with the following information: 
+
+Owner, Pet Name
+
+A `JOIN` allows you to combine information from 2 tables. 
+
+```sql
+SELECT p.name, pe.pet_name
+FROM people p
+JOIN pets pe ON p.personid = pe.personid;
+```
+
+| name  | pet_name |
+| ----- | --------- |
+| Alice | Fluffy    |
+| Bob   | Rex       |
+| Bob   | Daisy     |
+
+NOTICE: Carla from the people table is not included here. That's because with a `JOIN`, there must be a field present in both tables and Carla doesn't have a pet. 
+
+If we still want Carla to appear, we use a `LEFT JOIN`. 
+
+```sql
+SELECT people.name
+FROM people
+LEFT JOIN pets ON people.personid = pets.ownerid;
+```
+
+Now the table in the left join CAN have a blank field: 
+
+| name  | pet_name |
+| ----- | --------- |
+| Alice | Fluffy    |
+| Bob   | Rex       |
+| Bob   | Daisy     |
+| Carla   | NULL    |
+
+
+STUDENTS: Write a query to list each pet and their owner's name, but only show pets whose owner’s name starts with the letter "A".
+<details>
+<summary>need a hint?</summary>
+You will need to use LIKE to complete this question. 
+</details>
+
+✅
+```sql
+SELECT pe.pet_name, p.name
+FROM pets pe
+JOIN people p ON pe.personid = p.personid
+WHERE p.name LIKE 'A%';
+```
+| name  | pet_name |
+| ----- | --------- |
+| Alice | Fluffy    |
+
+STUDENTS: Write a query to list all people who don’t have any pets (i.e., only those whose pet_name is NULL)
+<details>
+<summary>need a hint?</summary>
+You will need to use LEFT JOIN and WHERE to complete this question. 
+</details>
+
+✅
+
+```sql
+SELECT people.name
+FROM people
+LEFT JOIN pets ON people.personid = pets.ownerid
+WHERE pets.pet_name IS NULL;
+```
+| name  | 
+| ----- | 
+| Carla | 
+
+STUDENTS: Count how many pets each person owns (include people with 0 pets).
+<details>
+<summary>need a hint?</summary>
+You will need to use COUNT and GROUP BY to complete this question
+</details>
+
+✅
+```sql
+SELECT p.name, COUNT(pe.petid) AS num_pets
+FROM people p
+LEFT JOIN pets pe ON p.personid = pe.personid
+GROUP BY p.name;
+```
+| name  | num_pets |
+| ----- | --------- |
+| Alice | 1   |
+| Bob   | 2     |
+| Carla   | 0   |
+
+Let's apply these skills to `JTCsql.db`
+
+The demographics table has 1 row per person. The program table has 1 row per person who was referred to programming. 
+
+STUDENTS: what is the difference in output between these 2 queries?
+
+```sql
 SELECT * FROM demographics d
-JOIN programming p ON d.personid = p.personid;
+JOIN programming p on d.personid = p.personid;
 ```
 
 ```sql
--- LEFT JOIN to keep all people, even those not in programming
 SELECT * FROM demographics d
-LEFT JOIN programming p ON d.personid = p.personid;
+LEFT JOIN programming p on d.personid = p.personid;
 ```
 
----
+✅
+The query using `JOIN` will only include people who are also included in the programming table/ who have been referred to programming. 
+THe query using `LEFT JOIN` will include every person in the demographics table regardless of if they exist in the programming table /if they have been referred to programming. 
 
-## Summary
+STUDENTS: 
+I would like to make a table with a person's name (demographics table) and the program referral date (programming). 
+If I only want people who were referred to programming, how would I write this query?
 
-You've just walked through a realistic dataset structure using SQL: exploring tables, filtering, joining, and aggregating. The next step is learning how to create your own tables.
+✅
+```sql
+SELECT name, referraldate
+FROM demographics d
+JOIN programming p on d.personid = p.personid;
+```
 
-# SQL Lesson 1: CRUD OPERATIONS 
+STUDENTS: I would like to have the same information as the above query, but I would like to add the program name from the `programmingLU` table. Please revise the query. 
+<details>
+<summary>need a hint?</summary>
+to check what column links the programmingLU table and the program table, SELECT * FROM each of the tables and look at the column names. 
+</details>
+
+✅
+```sql
+SELECT d.name, lu.name, referraldate
+FROM demographics d
+JOIN programming p on d.personid = p.personid
+JOIN programmingLU lu on lu.programluid = p.programluid;
+```
+
+Note: In this teaching database, the data is clean and well-structured, so `JOIN` often works just fine and as intended. But in real-world datasets — which are often messy or incomplete — we sometimes use a `LEFT JOIN` to avoid accidentally excluding rows.
+
+For example, even though every programluid in the programming table should match a program in programmingLU, a `LEFT JOIN` ensures we still include people even if their program data is missing or incomplete.
+
+```sql
+SELECT d.name, lu.name, referraldate
+FROM demographics d
+JOIN programming p on d.personid = p.personid
+LEFT JOIN programmingLU lu on lu.programluid = p.programluid;
+```
+
+-------note to self: false data row? 
+
+# HAVING
+
+This query returns programs and a count of the number of referrals per program (this was a practice question for you all at the end of the last class)
+
+```sql
+SELECT lu.name AS program_name, COUNT(*) AS num_referrals
+FROM programming p
+JOIN programmingLU lu ON p.programluid = lu.programluid
+GROUP BY lu.name;
+```
+`HAVING` is used to filter groups after you've used `GROUP BY`. Think of it as `WHERE` but for grouped results. 
+
+Let's say we want to refine this list to only include programs with over 5 people referred. This is when we woild use HAVING 
+
+```sql
+SELECT lu.name AS program_name, COUNT(*) AS num_referrals
+FROM programming p
+JOIN programmingLU lu ON p.programluid = lu.programluid
+GROUP BY lu.name
+HAVING COUNT(*) > 5;
+```
+
+STUDENTS: Write a query that shows each zip code in the demographics table that has more than 10 people in it.
+
+✅
+```sql
+SELECT zipcode, COUNT(*) AS num_people
+FROM demographics
+GROUP BY zipcode
+HAVING COUNT(*) > 10;
+```
+
+STUDENTS: Find the charges (from legalall) that appear more than 2 times in the data.
+
+✅
+```sql
+SELECT topcharge, COUNT(*) AS num_cases
+FROM legalall
+GROUP BY topcharge
+HAVING COUNT(*) > 2;
+```
+
+# CRUD OPERATIONS 
+
+Exit the current shell by doing control + C
 
 Begin by making a LOCAL copy of a new database with your name: by typing: `sqlite3 dylan.db` into the terminal 
 
+Now, type in the same formatting comands we were using: 
+1. .mode box 
+2. .headers on
+
 ** Important note: you will not be pushing any of the following changes
 
-`rm student1.db` allows you to remove a local database (command this outside of the sqlite3 shell) 
+`rm dylan.db` allows you to remove a local database (command this outside of the sqlite3 shell) 
 
 ## Section 1: `CREATE`
+
+Each column of a table is assigned a data type. It's important to pick the correct data type because that allows certain functions to work vs. not. For example, if you make an interger a varchar value, you won't be able to count. 
+
+
+| Data Type      | Description                                              | Example                          |
+|----------------|----------------------------------------------------------|----------------------------------|
+| `INTEGER`      | Whole numbers (used for IDs, counts, etc.)               | `42`, `0`, `-3`                  |
+| `TEXT`         | Any string value                                         | `'Pizza'`, `'New York'`          |
+| `VARCHAR(n)`   | A string with a max length of `n` (acts like `TEXT`)     | `'Tacos'`, `'Pad Thai'`          |
+| `REAL`         | Floating-point numbers (decimals)                        | `8.5`, `3.14`                    |
+| `DECIMAL(p,s)` | Precise decimal with `p` digits total, `s` after point   | `DECIMAL(6,2)` → `9999.99`       |
+| `BOOLEAN`      | Represents true/false (stored as 1 or 0 in SQLite)       | `1` = true, `0` = false          |
+| `DATE`         | Stores a date as a string in `YYYY-MM-DD` format         | `'2025-06-01'`                   |
+
 
 ```sql 
 CREATE TABLE food(
@@ -739,6 +1032,15 @@ CREATE TABLE food(
    rating INT
 );
 ```
+
+
+| Column Name | Data Type                    | Explanation                                                                 |
+|-------------|------------------------------|-----------------------------------------------------------------------------|
+| `foodid`    | `INTEGER PRIMARY KEY AUTOINCREMENT` | A unique number assigned to each food item, automatically increases by 1 |
+| `foodname`  | `VARCHAR(50)`                | A text field that can hold up to 50 characters (e.g., `'Tacos'`, `'Sushi'`) |
+| `category`  | `VARCHAR(30)`                | A shorter text field for the type of cuisine (e.g., `'Mexican'`, `'Thai'`) |
+| `rating`    | `INT`  (same as `INTEGER`)                      | A whole number rating from 1–10 or similar scale                            |
+
 
 ```sql
 INSERT INTO food (foodname, category, rating)
@@ -754,21 +1056,6 @@ VALUES
 
 ```sql 
 SELECT * FROM food;
-```
-
-We will come back to more complex read statments in the next unit, but the format for viewing an entire table is:
-
-```sql 
-SELECT * FROM table; --* = all
-``` 
-
-
-```sql 
-SELECT foodname, rating FROM food WHERE rating >= 9;
-```
-
-```sql 
-SELECT foodname FROM food WHERE category = 'Thai';
 ```
 
 ## PART 3: UPDATE
@@ -801,9 +1088,10 @@ WHERE foodname = 'Deep Dish Pizza'
 Remove data (carefully) from the dataset 
 
 See below the format for deleting things from a dataset 
+
 ```sql 
 DELETE FROM tablename 
-WHERE X = ___
+WHERE column = ' '
 ```
 
 STUDENTS: Last night you ate sushi and got food poisoning so you want to delete your sushi entry from the database. 
@@ -855,6 +1143,226 @@ CREATE TABLE menu_items (
     price DECIMAL (6,2)
 );
 ```
+
+STUDENTS TRY: 
+Try creating your own table called drinks with the following columns:
+1. drinkid (primary key, auto-incrementing)
+2. drinkname (max 50 characters)
+3. type (e.g., soda, juice, water — max 30 characters)
+4. caffeine (integer — mg per serving)
+
+✅
+```sql
+CREATE TABLE drinks (
+  drinkid INTEGER PRIMARY KEY AUTOINCREMENT,
+  drinkname VARCHAR(50),
+  type VARCHAR(30),
+  caffeine INT
+);
+```
+
+STUDENTS: Add at least 3 drinks to your new table. One of them should have 0 caffeine.
+
+✅
+```sql
+INSERT INTO drinks (drinkname, type, caffeine)
+VALUES 
+  ('Coca-Cola', 'Soda', 34),
+  ('Green Tea', 'Tea', 28),
+  ('Orange Juice', 'Juice', 0);
+  ```
+
+STUDENTS: You find out one of your drinks actually has 35mg of caffeine. Update it.
+
+✅
+```sql
+UPDATE drinks
+SET caffeine = 35
+WHERE drinkname = 'Green Tea';
+```
+
+STUDENTS: You want to cut back on soda. Delete all drinks in the drinks table where the type is 'Soda'.
+(And if you don't have a soda, eliminate another type)
+
+✅
+```sql
+DELETE FROM drinks
+WHERE type = 'Soda';
+```
+
+STUDENTS: Can you write a query to list all drinks with more than 30mg of caffeine, ordered from highest to lowest?
+✅
+
+```sql 
+SELECT * FROM drinks
+WHERE caffeine > 30
+ORDER BY caffeine DESC;
+```
+
+# Analytics Project 
+
+Scenario: Your office has launched 4 pilot diversion programs. Leadership wants a summary of how these programs are performing and who they’re reaching. Your job is to query the database and create a short, clear report that answers the questions below.
+
+Use the `demographics`, `legalall`, `programming`, and `programmingLU` tables to answer the following (remember you will need to exit the shell and restart using sqlite3 JTCsql.db)
+
+### 1. 🧾 Program Overview
+- What are the 4 programs?
+- What charges is each program eligible to serve?
+- How many people have been referred to each program?
+
+<details>
+<summary>💡 Starter queries</summary>
+
+```sql
+SELECT * FROM programmingLU;
+
+SELECT programluid, COUNT(*) 
+FROM programming 
+GROUP BY programluid;
+```
+</details>
+
+### 2. 👥 Participant Demographics
+- What is the racial breakdown of participants in each program?
+- What is the gender breakdown?
+- What is the average age per program?
+
+<details> <summary>💡 Starter queries</summary>
+
+```sql
+SELECT programluid, race, COUNT(*) 
+FROM programming p
+JOIN demographics d ON p.personid = d.personid
+GROUP BY programluid, race;
+
+SELECT programluid, AVG(age)
+FROM programming p
+JOIN demographics d ON p.personid = d.personid
+GROUP BY programluid;
+```
+</details>
+
+### 3. ⚖️ Legal Background
+- What is the average number of legal events per participant, per program?
+- What are the most common top charges among people in each program?
+
+<details> <summary>💡 Starter queries</summary>
+
+```sql
+-- Count legal events per person
+SELECT personid, COUNT(*) AS num_events
+FROM legalall
+GROUP BY personid;
+
+-- Join to program table and get avg
+SELECT programluid, AVG(num_events)
+FROM (
+  SELECT personid, COUNT(*) AS num_events
+  FROM legalall
+  GROUP BY personid
+) l
+JOIN programming p ON l.personid = p.personid
+GROUP BY programluid;
+```
+
+</details>
+
+### 4. ✅ Program Outcomes
+- How many people have completed each program?
+- How many were referred but have not completed?
+
+<details> <summary>💡 Starter queries</summary>
+
+```sql
+SELECT programluid, COUNT(*) AS completions
+FROM programming
+WHERE completiondate IS NOT NULL
+GROUP BY programluid;
+
+SELECT programluid, COUNT(*) AS no_completion
+FROM programming
+WHERE completiondate IS NULL
+GROUP BY programluid;
+```
+</details>
+
+### 5.⭐️ Optional Analysis (Challenge)
+- Which program has the highest completion rate?
+- Which program serves the youngest or oldest participants?
+
+<details> <summary>💡 Starter query idea</summary>
+
+
+-- Completion rate = completions / referrals
+-- Use subqueries or join 2 grouped tables on programluid
+
+</details>
+
+# STOP HERE 
+
+--having and joins
+--subqueries 
+--making tables (end of this class and beginning of next)
+--analytical project (end of next class)
+
+End with: if you're interested in continuing to learn SQL, the functions I'd reccomend exploring are CTEs, 
+
+```
+
+select * from programming;
+
+
+
+for the analytics project: present everything happening with our diversion programs 
+
+section one: demographics
+
+section two: charges 
+
+section 3: uptake 
+
+section 4: data limitations
+
+section 5: 
+
+```sql
+SELECT * FROM legalall;
+--
+SELECT * FROM demographics;
+```
+
+```sql
+--
+SELECT * FROM legalall l
+JOIN demographics d ON l.personid = d.personid;
+```
+
+```sql
+-- We want all of legalall and just name/age from demographics
+SELECT l.*, d.name, d.age
+FROM legalall l
+JOIN demographics d ON l.personid = d.personid;
+```
+
+```sql
+--
+SELECT * FROM demographics d
+JOIN programming p ON d.personid = p.personid;
+```
+
+```sql
+-- LEFT JOIN to keep all people, even those not in programming
+SELECT * FROM demographics d
+LEFT JOIN programming p ON d.personid = p.personid;
+```
+
+---
+
+## Summary
+
+You've just walked through a realistic dataset structure using SQL: exploring tables, filtering, joining, and aggregating. The next step is learning how to create your own tables.
+
+
 
 
 
