@@ -678,8 +678,6 @@ JOIN programmingLU lu ON p.programluid = lu.programluid
 GROUP BY lu.name;
 ```
 
-# in progress below
-
 # Welcome back to SQL Lesson #2
 
 In the next 2 courses, we will learn more about joins, using HAVING, creating your own database/tables, and then we will end with an analytical project. 
