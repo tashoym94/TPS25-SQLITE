@@ -354,7 +354,6 @@ Situation: A program has been created to provide resources to any individual tha
 SELECT name, zipcode, age FROM demographics
 WHERE zipcode = 62703 OR (zipcode = 62701 AND age < 30);
 ```
-
 STUDENTS: Another program has been created and the following people are eligible: 
 - Everyone in 62703 if they speak Spanish 
 - Everyone in 62701 if they speak English 
@@ -393,8 +392,7 @@ STUDENTS: write a query using `COUNT` to figure out how many programs are in the
 
 For referencing column names: 
 ```sql
-SELECT * FROM programmingLU;
-```
+``````
 
 ✅
 
@@ -570,3 +568,4 @@ Homework:
 1. Why is it ideal to use multiple tables instead of one giant table in a relational database?
 2. Write a SQL query that counts the number of people in the demographics table for each zipcode who are under 30. 
 3. You want to know how many people were referred to each program in the database. Referral information is stored in the programming table.Program names are stored in the programmingLU table. Write a SQL query that shows the program name and the number of people referred to each one.
+
