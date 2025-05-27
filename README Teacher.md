@@ -1281,6 +1281,15 @@ ORDER BY caffeine DESC;
 
 `rm dylan.db` (into the nain terminal) allows you to remove a local database (command this outside of the sqlite3 shell)
 
+# That's all! 
+In this lesson we have covered JOINS, HAVING, and CRUD operations. Next class, we will be doing an analytical project where you'll apply everythign you've learned so far! 
+
+Closing question: what did you learn and what are you still confused about? 
+
+
+
+
+
 # Analytics Project 
 
 Scenario: Your office has launched 4 pilot diversion programs. Leadership wants a summary of how these programs are performing and who they’re reaching. Your job is to query the database and create a short, clear report that answers the questions below.
